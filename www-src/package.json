@@ -6,12 +6,13 @@
     "node": "~0.10"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/brunch build",
+    "postinstall": "./node_modules/.bin/bower install --config.interactive=false && ./node_modules/.bin/brunch build",
     "test": "./node_modules/.bin/mocha test/index.coffee --reporter spec --compilers coffee:coffee-script/register --colors",
     "start": "./node_modules/.bin/brunch watch --server"
   },
   "dependencies": {
     "auto-reload-brunch": "> 1.0 < 1.5",
+    "bower": "1.6.7",
     "brunch": "1.8.5",
     "clean-css-brunch": "> 1.0 < 1.5",
     "coffee-script-brunch": "> 1.0 < 1.5",

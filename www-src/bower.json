@@ -1,0 +1,38 @@
+{
+  "name": "cozy-mobile",
+  "description": "This is the native mobile client for Cozy.",
+  "license": "AGPL-3.0",
+  "homepage": "https://github.com/cozy/cozy-mobile",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1.9.1",
+    "async": "1.2.1",
+    "ionic": "1.0.0",
+    "backbone": "1.0.0",
+    "polyglot": "0.2.0",
+    "pouchdb": "3.3.1",
+    "underscore": "1.4.4",
+    "pouchdb-quick-search": "0.3.2"
+  },
+  "overrides": {
+    "jquery": {
+      "main": ["./jquery.js"]
+    },
+    "backbone": {
+      "main": ["./backbone.js"]
+    },
+    "polyglot": {
+      "main": ["./polyglot.js"]
+    },
+    "underscore": {
+      "main": ["./underscore.js"]
+    }
+  }
+}

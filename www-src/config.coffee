@@ -18,21 +18,27 @@ exports.config =
         javascripts:
             joinTo:
                 'javascripts/app.js': /^app/
-                'javascripts/vendor.js': /^vendor/
+                'javascripts/vendor.js': [
+                    'bower_components/jquery/jquery.js'
+                    'bower_components/underscore/underscore.js'
+                    'bower_components/backbone/backbone.js'
+                    'bower_components/async/lib/async.js'
+                    'bower_components/ionic/release/js/ionic.js'
+                    'bower_components/polyglot/lib/polyglot.js'
+                    'bower_components/pouchdb/dist/pouchdb.js'
+                    'bower_components/pouchdb-quick-search/dist/pouchdb.quick-search.js'
+                ]
             order:
                 # Files in `vendor` directories are compiled before other files
                 # even if they aren't specified in order.
                 before: [
-                    'vendor/scripts/jquery-1.9.1.js'
-                    'vendor/scripts/underscore-1.4.4.js'
-                    'vendor/scripts/backbone-1.0.0.js'
+                    'bower_components/jquery/jquery.js'
+                    'bower_components/underscore/underscore.js'
+                    'bower_components/backbone/backbone.js'
                 ]
 
         stylesheets:
             joinTo: 'stylesheets/app.css'
-            order:
-                before: []
-                after: []
 
         templates:
             defaultExtension: 'jade'

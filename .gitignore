@@ -6,3 +6,4 @@ keys/cozy-play-store.password
 *.transifex.coffee
 www
 www-src/node_modules
+www-src/bower_components
