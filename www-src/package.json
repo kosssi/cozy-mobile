@@ -39,6 +39,7 @@
     "expect.js": "0.1.2",
     "memdown": "1.1.0",
     "mocha": "2.3.4",
+    "phantomjs": "1.9.19",
     "should": "7.1.1",
     "ws": "0.4.21"
   }
