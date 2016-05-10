@@ -91,13 +91,11 @@ module.exports = class FilterManager
                 delete doc._rev
                 # Add filter in Cozy
                 options =
-                    method: 'put'
-                    type: 'data-system'
-                    path: '/filters/config'
-                    body: doc
-                @requestCozy.request options, (err, res, body) ->
-                    if err or not (body?.success or body?._id)
-                        err ?= body
+                    url: @requestCozy.getDataSystemUrl '/filters/config'
+                    send: doc
+                @requestCozy.put options, (err, res) ->
+                    if err or not (res.body?.success or res.body?._id)
+                        err ?= res.body
                         return callback err
 
                     callback null, true
@@ -106,11 +104,9 @@ module.exports = class FilterManager
         log.debug "filterRemoteExist"
 
         options =
-            method: 'get'
-            type: 'data-system'
-            path: '/filters/config'
-        @requestCozy.request options, (err, res, body) =>
-            if res?.status is 404
+            url: @requestCozy.getDataSystemUrl '/filters/config'
+        @requestCozy.get options, (err, res) =>
+            if err?.status is 404
                 console.info 'The above 404 is normal, we create the filter'
                 return @setFilter callback
             callback()

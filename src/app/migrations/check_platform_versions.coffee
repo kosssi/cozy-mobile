@@ -17,13 +17,13 @@ module.exports =
         config = app.init.config
         requestCozy = app.init.requestCozy
         options =
-            method: 'get'
             url: "#{config.get 'cozyURL'}/versions"
 
-        requestCozy.request options, (err, response, body) ->
-            return callback err if err # TODO i18n ?
+        # todo : avant merge il faut que je traite l'erreur
+        requestCozy.get options, (err, res) ->
+            return callback err if err
 
-            for item in body
+            for item in res.body
                 [s, app, version] = item.match /([^:]+): ([\d\.]+)/
                 if app of PLATFORM_VERSIONS
                     unless semver.satisfies(version, PLATFORM_VERSIONS[app])

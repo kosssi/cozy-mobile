@@ -47,6 +47,7 @@
     "node-polyglot": "1.0.0 ",
     "pouchdb": "5.3.1",
     "semver": "5.1.0",
+    "superagent": "1.8.3",
     "underscore": "1.8.3",
     "validator": "5.1.0"
   },

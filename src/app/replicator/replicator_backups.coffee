@@ -283,11 +283,9 @@ module.exports =
             tags             : ['from-' + @config.get 'deviceName']
 
         options =
-            method: 'post'
-            type: 'data-system'
-            path: '/data'
-            body: dbFile
-        @requestCozy.request options, callback
+            url: @requestCozy.getDataSystemUrl '/data'
+            send: dbFile
+        @requestCozy.post options, callback
 
 
     createPhoto: (localPath, callback) ->
@@ -334,11 +332,9 @@ module.exports =
                 tags             : []
 
             options =
-                method: 'post'
-                type: 'data-system'
-                path: '/data'
-                body: folder
-            @requestCozy.request options, (err, result, body) ->
+                url: @requestCozy.getDataSystemUrl '/data'
+                send: folder
+            @requestCozy.post options, (err, result, body) ->
                 return callback err if err
                 # Wait to receive folder in local database
                 findFolder body._id, () ->

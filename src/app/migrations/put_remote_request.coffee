@@ -36,10 +36,9 @@ module.exports =
                     """
 
         async.eachSeries reqList, (req, cb) ->
+            path = "/request/#{req.type}/#{req.name}/"
             options =
-                method: 'put'
-                type: 'data-system'
-                path: "/request/#{req.type}/#{req.name}/"
-                body: req.body
-            requestCozy.request options, cb
+                url: requestCozy.getDataSystemUrl path
+                send: req.body
+            requestCozy.put options, cb
         , callback

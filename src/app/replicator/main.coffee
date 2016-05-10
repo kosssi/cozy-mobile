@@ -44,13 +44,12 @@ module.exports = class Replicator extends Backbone.Model
     # pings the cozy to check the credentials without creating a device
     checkCredentials: (url, password, callback) ->
         options =
-            method: 'post'
             url: "#{url}/login"
-            json:
+            auth: false
+            send:
                 username: 'owner'
                 password: password
-            auth: false
-        window.app.init.requestCozy.request options, (err, response, body) ->
+        window.app.init.requestCozy.post options, (err, res) ->
             if err and err.message is "Unexpected token <"
                 error = t err.message
             else if err
@@ -82,72 +81,65 @@ module.exports = class Replicator extends Backbone.Model
 
     _registerRemote: (url, password, deviceName, callback) ->
         options =
-            method: "post"
             url: "#{url}/device"
             auth:
                 username: 'owner'
                 password: password
-            json:
+            send:
                 login: deviceName
                 permissions: @config.get 'devicePermissions'
-        @requestCozy.request options, (err, response, body) ->
-            if err
-                callback err
-            else if response.statusCode is 401 and response.reason
+        @requestCozy.post options, (err, res) ->
+            if res.status is 401 and response.reason
                 callback new Error 'cozy need patch'
-            else if response.statusCode is 401
+            else if res.status is 401
                 callback new Error 'wrong password'
-            else if response.statusCode is 400
+            else if res.status is 400
                 callback new Error 'device name already exist'
-            else if response.statusCode isnt 201
+            else if res.status isnt 201
                 log.error "while registering device:  #{response.statusCode}"
                 callback new Error response.statusCode, response.reason
             else
-                callback err, body
+                callback err, res.body
 
 
     updatePermissions: (password, callback) ->
         options =
-            method: 'put'
             url: "#{@config.getCozyUrl()}/device/#{@config.get('deviceName')}"
             auth:
                 username: 'owner'
                 password: password
-            json:
+            send:
                 login: @config.get 'deviceName'
                 permissions: app.init.config.getDefaultPermissions()
-        @requestCozy.request options, (err, response, body) =>
+        @requestCozy.put options, (err, response, body) =>
             return callback err if err
 
             @config.set 'devicePermissions', body.permissions, callback
 
 
     takeCheckpoint: (callback) ->
+        path = '/_changes?descending=true&limit=1'
         options =
-            method: 'get'
-            type: 'replication'
-            path: '/_changes?descending=true&limit=1'
-        @requestCozy.request options, (err, res, body) ->
+            url: @requestCozy.getReplicationUrl path
+        @requestCozy.get options, (err, res) ->
             return callback err if err
-            window.app.checkpointed = body.last_seq
+            window.app.checkpointed = res.body.last_seq
             callback()
 
 
     # Fetch all documents, with a previously put couchdb view.
     _fetchAll: (doc, callback) ->
         options =
-            method: 'post'
-            type: 'data-system'
-            path: "/request/#{doc.docType}/all/"
-            body:
+            url: @requestCozy.getDataSystemUrl "/request/#{doc.docType}/all/"
+            send:
                 include_docs: true
                 show_revs: true
-        @requestCozy.request options, (err, res, rows) ->
-            if not err and res.statusCode isnt 200
-                err = new Error res.statusCode, res.reason
+        @requestCozy.post options, (err, res) ->
+            if not err and res.status isnt 200
+                err = new Error res.status, res.reason
 
             return callback err if err
-            callback null, rows
+            callback null, res.body
 
 
     # 1. Fetch all documents of specified docType
@@ -178,15 +170,14 @@ module.exports = class Replicator extends Backbone.Model
                 # 2.1 Fetch attachment if needed (typically contact docType)
                 if options.attachments is true and doc._attachments?
                 # TODO? needed : .picture?
+                    path = "/#{doc._id}?attachments=true"
                     requestOptions =
-                        method: 'get'
-                        type: 'replication'
-                        path: "/#{doc._id}?attachments=true"
-                    @requestCozy.request requestOptions, (err, res, body) ->
+                        url: @requestCozy.getReplicationUrl path
+                    @requestCozy.get requestOptions, (err, res) ->
                         # Continue on error (we just miss the avatar in case
                         # of contacts)
                         unless err
-                            doc = body
+                            doc = res.body
 
                         putInPouch doc, cb
 

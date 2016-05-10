@@ -136,15 +136,14 @@ module.exports = class AndroidCalendarHandler
 
 
     _getCalendarFromCozy: (calendarName, callback) ->
+        requestCozy = window.app.init.requestCozy
         options =
-            method: 'post'
-            path: '/request/tag/byname/'
-            type: 'data-system'
-            body:
+            url: requestCozy.getDataSystemUrl '/request/tag/byname/'
+            send:
                 include_docs: true
                 key: calendarName
-        requestCozy = window.app.init.requestCozy
-        requestCozy.request options, (err, res, body) ->
+        # todo : avant merge il faut que je traite l'erreur
+        requestCozy.post options, (err, res) ->
             return callback err if err
             # No tag found, put a default color.
             calendar = body[0]?.doc or { name: name , color: '#2979FF' }
