@@ -1,6 +1,7 @@
 mockery = require 'mockery'
 should = require('chai').should()
-PouchDB = require 'pouchdb'
+PouchDB = require 'pouchdb-browser'
+PouchDB.plugin require 'pouchdb-adapter-memory'
 
 
 cozyFile =
@@ -10,8 +11,8 @@ cozyFile =
         file:
             id: 'binary_id'
             rev: 'binary_rev'
-localDb = new PouchDB 'localDb', db: require 'memdown'
-replicateDb = new PouchDB 'replicateDb', db: require 'memdown'
+localDb = new PouchDB 'localDb', adapter: 'memory'
+replicateDb = new PouchDB 'replicateDb', adapter: 'memory'
 requestCozy = {}
 fileCacheHandler = {}
 

@@ -161,7 +161,7 @@ module.exports = class Replicator extends Backbone.Model
         log.info "enter copyView for #{options.docType}."
         # Last step
         putInPouch = (doc, cb) =>
-            @db.put doc, 'new_edits':false, (err) ->
+            @db.put doc, {'new_edits': false}, (err) ->
                 return cb err if err
                 cb null, doc
 

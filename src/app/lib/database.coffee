@@ -1,4 +1,4 @@
-PouchDB = require 'pouchdb'
+PouchDB = require 'pouchdb-browser'
 semver = require 'semver'
 log = require("./persistent_log")
     prefix: "Database"
@@ -17,7 +17,7 @@ class Database
     #
     # To test:
     #   options = db: require 'memdown'
-    constructor: (options = adapter: 'idb', cache: false) ->
+    constructor: (adapter = 'idb') ->
         log.debug 'constructor', options
 
         if device.platform is "Android"
@@ -32,8 +32,9 @@ class Database
             if not semver.valid(version) or semver.lt version, '4.4.0'
                 log.info 'Require websql'
                 log.debug device.version, version
-                options = adapter: 'websql'
+                adapter = 'websql'
 
+        options = adapter: adapter
         @replicateDb = new PouchDB Database.REPLICATE_DB, options
         @localDb = new PouchDB Database.LOCAL_DB, options
 

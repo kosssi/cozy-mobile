@@ -47,7 +47,7 @@
     "moment": "2.13.0",
     "moment-timezone": "0.5.4",
     "node-polyglot": "2.0.0",
-    "pouchdb": "5.3.2",
+    "pouchdb-browser": "5.4.0",
     "semver": "5.1.0",
     "underscore": "1.8.3",
     "validator": "5.3.0"
@@ -64,7 +64,7 @@
     "jade-brunch": "1.8.2",
     "javascript-brunch": "1.8.0",
     "json-brunch": "1.5.4",
-    "memdown": "1.2.0",
+    "pouchdb-adapter-memory": "5.4.0",
     "mocha": "2.5.3",
     "mockery": "1.7.0",
     "stylus-brunch": "1.8.1",

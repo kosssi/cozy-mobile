@@ -1,7 +1,6 @@
 should   = require('chai').should()
 Database = require '../../../app/lib/database'
 
-options = db: require 'memdown'
 url = 'cozyUrlForTest'
 global.device = {}
 
@@ -17,7 +16,7 @@ module.exports = describe 'Database Service Test', ->
 
     describe 'Create databases', ->
 
-        database = new Database options, device
+        database = new Database()
 
         it 'must have replicate database', ->
             database.replicateDb.should.be.an.Object

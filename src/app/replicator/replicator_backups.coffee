@@ -22,7 +22,7 @@ module.exports =
     # wrapper around _backup to maintain the state of inBackup
     backup: (options, callback = ->) ->
 
-        return callback null if @get 'inBackup'
+        return callback() if @get 'inBackup'
 
         try
             @set 'inBackup', true
