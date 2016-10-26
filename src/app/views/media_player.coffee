@@ -13,9 +13,10 @@ module.exports = class MediaPlayerView extends BaseView
     append: true
     refs:
         picture: '#mediaPicture'
+        container: '.mediaContainer'
 
 
-    initialize: (@path) ->
+    initialize: (@path, @mimetype) ->
         @fileCacheHandler = new FileCacheHandler()
         @fileName = pathHelper.getFileName @path
         @layout = app.router.layout
@@ -61,6 +62,7 @@ module.exports = class MediaPlayerView extends BaseView
 
 
     getRenderData: ->
+        mimetype:  @mimetype
         path: @path
         fileName: @fileName
 
