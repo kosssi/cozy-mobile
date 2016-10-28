@@ -2,6 +2,7 @@ async = require 'async'
 AndroidAccount = require './android_account'
 CozyToAndroidContact = require "../transformer/cozy_to_android_contact"
 Permission = require '../../lib/permission'
+ConflictsHandler = require '../change/conflicts_handler'
 
 log = require('../../lib/persistent_log')
     prefix: "ContactImporter"
@@ -19,6 +20,7 @@ module.exports = class ContactImporter
         @replicateDb ?= app.init.database.replicateDb
         @transformer = new CozyToAndroidContact()
         @permission = new Permission()
+        @conflictsHandler = new ConflictsHandler @replicateDb
 
 
     synchronize: (callback) ->
@@ -67,6 +69,7 @@ module.exports = class ContactImporter
             return callback err if err
 
             # _.extend : Keeps not android compliant data of the 'cozy'-contact
+            #contact = _.extend _.clone(res.fromPouch), res.fromPhone
             contact = _.extend res.fromPouch, res.fromPhone
 
             if contact._attachments?.picture?
@@ -77,9 +80,13 @@ module.exports = class ContactImporter
                     if oldPicture.data is picture.data
                         picture.revpos = oldPicture.revpos
                     else
-                        picture.revpos = 1 + \
-                            parseInt contact._rev.split('-')[0]
+                        if oldPicture.revpos
+                            picture.revpos = oldPicture.revpos + 1
+                        else
+                            picture.revpos = 1 + \
+                                    parseInt contact._rev.split('-')[0]
 
+            #@conflictsHandler.handleConflicts doc, (err, doc) =>
             @replicateDb.put contact, (err, idNrev) =>
                 return callback err if err
                 @_undirty phoneContact, idNrev, callback

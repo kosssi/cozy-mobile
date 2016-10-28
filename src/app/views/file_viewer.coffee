@@ -107,7 +107,7 @@ module.exports = class FileViewer extends BaseView
 
         cozyFileId = menu.data 'key'
         if @fileCacheHandler.cache[cozyFileId]
-            return if menu.data('type') in ['file-image', 'file-pdf', 'file-music', 'file-video', 'file-chart', 'presentation-play', 'file-document']
+            return if menu.data('type') in ['file-image', 'file-music', 'file-video', 'file-chart', 'presentation-play', 'file-document']
             event.preventDefault()
             return @fileCacheHandler.open menu.data 'fullpath'
 
@@ -125,7 +125,7 @@ module.exports = class FileViewer extends BaseView
                     menu.find('.progress').hide()
                     progressDesign.css('width', '0%')
                     @render()
-                    if menu.data('type') in ['file-image', 'file-pdf', 'file-music', 'file-video', 'file-chart', 'presentation-play', 'file-document']
+                    if menu.data('type') in ['file-image', 'file-music', 'file-video', 'file-chart', 'presentation-play', 'file-document']
                         @router.navigate menu.attr('href'), trigger: true
                     else
                         @fileCacheHandler.open menu.data 'fullpath'

@@ -39,7 +39,7 @@ _getOptions = ->
     options =
         adapter: 'websql'
         location: 'default'
-        auto_compaction: true
+        auto_compaction: false
 
 
     if device.platform is "Android"
