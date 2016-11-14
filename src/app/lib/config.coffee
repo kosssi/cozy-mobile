@@ -243,4 +243,8 @@ class Config
         true
 
 
+    isSentryLog: ->
+        true
+
+
 module.exports = Config

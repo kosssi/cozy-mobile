@@ -11,6 +11,7 @@ Translation = require './translation'
 ConnectionHandler = require './connection_handler'
 toast = require './toast'
 AndroidAccount = require '../replicator/fromDevice/android_account'
+Sentry = require './sentry'
 
 
 log = require('./persistent_log')
@@ -44,6 +45,8 @@ module.exports = class Initialize
         @translation.setDeviceLocale =>
             @config.load =>
                 state = if @app.name is 'APP' then 'launch' else 'service'
+                @sentry = new Sentry()
+                @sentry.initialize @config
 
                 @filterManager = new FilterManager @config, @requestCozy, \
                         @database.replicateDb

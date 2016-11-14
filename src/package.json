@@ -36,6 +36,7 @@
     "node-viewerjs": "https://github.com/cozy/ViewerJS.git",
     "path-browser": "2.2.1",
     "pouchdb": "6.0.7",
+    "raven-js": "^3.8.0",
     "semver": "5.3.0",
     "snap.js": "https://github.com/kosssi/snap.js.git#develop",
     "underscore": "1.8.3",

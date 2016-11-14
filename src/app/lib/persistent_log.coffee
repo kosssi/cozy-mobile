@@ -1,3 +1,4 @@
+Sentry = require './sentry'
 module.exports = (options) -> new Logger options
 
 LOG_SIZE = 1000
@@ -19,6 +20,7 @@ levelColors =
 class Logger
 
     constructor: (@options) ->
+        @sentry = new Sentry()
         @options ?= {}
         if 'processusTag' of @options
             Logger.processusTag = @options.processusTag
@@ -60,12 +62,14 @@ class Logger
         text = @format 'warn', texts
         @persist text
         console.warn text
+        @sentry.capture text, 'warn'
 
     error: (texts...) ->
         return if @noLog
         text = @format 'error', texts
         @persist text
         console.error text
+        @sentry.capture text, 'error'
 
     debug: (texts...) ->
         return if @noLog
