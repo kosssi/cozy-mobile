@@ -3,17 +3,21 @@
         .valign-wrapper
             .center.cozy-color
                 .row
-                    .col.s12
-                        .preloader-wrapper.active
-                            .spinner-layer.spinner-cozy
-                                .circle-clipper.left
-                                    .circle
-                                .gap-patch
-                                    .circle
-                                .circle-clipper.right
-                                    .circle
-                    .col.s12
-                        span= t('config_loading_files')
+                    if firstSyncFiles
+                        .col.s12
+                            .preloader-wrapper.active
+                                .spinner-layer.spinner-cozy
+                                    .circle-clipper.left
+                                        .circle
+                                    .gap-patch
+                                        .circle
+                                    .circle-clipper.right
+                                        .circle
+                        .col.s12
+                            span= t('config_loading_files')
+                    else
+                        .col.s12
+                            img(src="img/bouncy-cozy.svg" alt="Bouncy Cozy" width="150px")
     else
         each file in files
             a.collection-item.download(href=file.link, data-key=file._id, data-doctype=file.docType, data-type=file.icon, data-fullpath=file.fullPath, data-name=file.name, data-is-cached=file.isCached?'true':'false', data-is-compatible-viewer=file.isCompatibleViewer?'true':'false', data-is-big=file.isBig?'true':'false')

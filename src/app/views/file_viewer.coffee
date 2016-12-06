@@ -43,6 +43,7 @@ module.exports = class FileViewer extends BaseView
         parentPath: @parentPath
         folderName: @folderName
         isViewerCompatible: @isViewerCompatible
+        firstSyncFiles: @firstSyncFiles
 
 
     setIsViewerCompatible: ->
@@ -64,6 +65,7 @@ module.exports = class FileViewer extends BaseView
         @fileCacheHandler = new FileCacheHandler()
         @router ?= app.router
         @loading = true
+        @firstSyncFiles = false
         @files = []
         @config ?= app.init.config
         @setIsViewerCompatible()
@@ -79,11 +81,12 @@ module.exports = class FileViewer extends BaseView
 
         startLoading = =>
             if @config.get 'firstSyncFiles'
+                @firstSyncFiles = true
                 @load @options.path
             else
-                setTimeout ->
-                    startLoading()
-                , 1000
+                @listenTo @config, 'change:firstSyncFiles', (object, value) =>
+                    @stopListening @config, 'change:firstSyncFiles'
+                    startLoading() if value
 
         startLoading()
         @loadjQueryFunction = false
