@@ -26,10 +26,9 @@ ul.collection.with-header
     li.collection-header
         h5= t('backup title')
         li.collection-item
-            if device.platform === 'Android'
-                p
-                    input#imageSyncCheck(type="checkbox", checked=syncImages)
-                    label(for='imageSyncCheck')= t('images sync label')
+            p
+                input#imageSyncCheck(type="checkbox", checked=syncImages)
+                label(for='imageSyncCheck')= t('images sync label')
             p
                 input#wifiSyncCheck(type="checkbox", checked=syncOnWifi)
                 label(for='wifiSyncCheck')= t('wifi sync label')
