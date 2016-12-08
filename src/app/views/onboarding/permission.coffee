@@ -53,7 +53,7 @@ module.exports = class Permission extends BaseView
             when 'calendars' then 'permissions/photos'
             when 'photos' then 'folder/'
 
-        route = 'folder/' if @platform is 'iOS'
+        route = 'permissions/photos' if @platform is 'iOS' and @step is 'files'
 
         if route is 'folder/'
             StatusBar.backgroundColorByHexString '#33A6FF'
