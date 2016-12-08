@@ -155,6 +155,8 @@ module.exports = class PictureHandler
 
     _findLocalPicturesPath: (callback) ->
 
+        return callback null, [] if device.platform is 'iOS'
+
         success = ->
             ImagesBrowser.getImagesList (err, pictures) ->
                 if pictures
