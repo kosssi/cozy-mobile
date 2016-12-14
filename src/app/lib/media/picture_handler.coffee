@@ -37,8 +37,16 @@ module.exports = class PictureHandler
 
 
     upload: (callback) ->
-        @_findLocalPicturesPath (err, picturesPath) =>
-            return callback err if err
+        cordova.plugins.photoLibrary.getLibrary (pictures) =>
+            picturesPath = []
+            @pictures = {}
+            pictures.forEach (picture) =>
+                return if device.platform is "Android" and
+                  picture.nativeURL.indexOf('/DCIM/') is -1
+
+                picturesPath.push picture.nativeURL
+                @pictures[picture.nativeURL] = picture
+
 
             async.series [
                 (cb) => @_ensureDeviceFolder cb
@@ -63,13 +71,15 @@ module.exports = class PictureHandler
                     cozyFiles[fileName] = cozyFile
 
                 @_updateProgression()
-                async.eachSeries picturesCache, (pictureCache, cb) =>
+                async.eachSeries picturesCache, (cache, cb) =>
                     @media.isUploadable (ok) =>
                         return cb new Error "Is not uploadable." unless ok
+                        picture = @pictures[cache.key]
                         async.series [
-                            (cb) => @_uploadCozyFile pictureCache, cozyFiles, cb
-                            (cb) => @_uploadCozyBinary pictureCache, cb
-                            (cb) => @_checkCozyBinary pictureCache, cb
+                            (cb) =>
+                                @_uploadCozyFile cache, picture, cozyFiles, cb
+                            (cb) => @_uploadCozyBinary cache, picture, cb
+                            (cb) => @_checkCozyBinary cache, cb
                         ], (err) =>
                             log.warn err if err
                             @_updateProgression()
@@ -77,6 +87,7 @@ module.exports = class PictureHandler
                 , (err) ->
                     log.warn err if err
                     callback()
+        , callback
 
 
     _checkCozyBinary: (pictureCache, callback) ->
@@ -92,7 +103,7 @@ module.exports = class PictureHandler
             @_updateCache pictureCache.id, data, callback
 
 
-    _uploadCozyBinary: (pictureCache, callback) ->
+    _uploadCozyBinary: (pictureCache, picture, callback) ->
         pictureValue = pictureCache.value
         return callback() if pictureValue.binaryId or not pictureValue.fileId
 
@@ -109,10 +120,8 @@ module.exports = class PictureHandler
             binaryId = cozyFile.binary?.file?.id
             return setBinaryId binaryId if binaryId
 
-            fs.getFileFromPath pictureCache.key, (err, file) =>
-                return callback err if err
-
-                @media.uploadBinary file, cozyFile._id, (err) =>
+            upload = (data) =>
+                @media.uploadBinary data, cozyFile._id, (err) =>
                     return callback err if err
 
                     @remoteDb.get cozyFile._id, (err, cozyFile) ->
@@ -120,8 +129,21 @@ module.exports = class PictureHandler
 
                         setBinaryId cozyFile.binary?.file?.id
 
+            if device.platform is 'iOS'
+                cordova.plugins.photoLibrary.getPhoto picture, (blob) =>
+                    upload blob
+                , callback
+            else
+                fs.getFileFromPath pictureCache.key, (err, file) =>
+                    return callback err if err
 
-    _uploadCozyFile: (pictureCache, cozyFiles, callback) ->
+                    fs.getFileAsBlob file, (err, blob) =>
+                        return callback err if err
+
+                        upload blob
+
+
+    _uploadCozyFile: (pictureCache, picture, cozyFiles, callback) ->
         return callback() if pictureCache.value.fileId
 
         setFileId = (fileId) =>
@@ -134,7 +156,7 @@ module.exports = class PictureHandler
         if cozyFiles[fileName] isnt undefined
             setFileId cozyFiles[fileName].id
         else
-            @_createFile pictureCache.key, (err, fileId) ->
+            @_createFile pictureCache.key, picture, (err, fileId) ->
                 return callback err if err
                 setFileId fileId
 
@@ -179,12 +201,10 @@ module.exports = class PictureHandler
             callback err, []
 
 
-    _createFile: (picturePath, callback) ->
+    _createFile: (picturePath, picture, callback) ->
         cozyPath = "/#{t 'photos'}"
 
-        fs.getFileFromPath picturePath, (err, file) =>
-            return callback err if err
-            @media.createFile file, picturePath, cozyPath, callback
+        @media.createFile picture, picturePath, cozyPath, callback
 
 
 

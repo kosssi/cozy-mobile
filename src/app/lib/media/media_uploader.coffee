@@ -48,48 +48,26 @@ module.exports = class MediaUploader
 
         path = "/data/#{fileId}/binaries/"
 
-        # Standard Blob isn't available on android prior to 4.3 ,
-        # and FormData doesn't work on 4.0 , so we use FileTransfert plugin.
-        if device.version? and device.version < '4.3'
-
-            options = @requestCozy.getDataSystemOption path
-            options.fileName = 'file'
-            options.mimeType = file.type
-            options.headers =
+        url = @requestCozy.getDataSystemUrl path
+        data = new FormData()
+        data.append 'file', file, 'file'
+        $.ajax
+            type: 'POST'
+            url: url
+            headers:
                 'Authorization': 'Basic ' +
-                    btoa unescape encodeURIComponent(
-                        @config.get('deviceName') + ':' +
+                    btoa(@config.get('deviceName') + ':' +
                             @config.get('devicePassword'))
-
-            ft = new FileTransfer()
-            ft.upload file.localURL, options.url, callback, (-> callback())
-            , options
-
-        else
-
-            fs.getFileAsBlob file, (err, blob) =>
-                return callback err if err
-
-                url = @requestCozy.getDataSystemUrl path
-                data = new FormData()
-                data.append 'file', blob, 'file'
-                $.ajax
-                    type: 'POST'
-                    url: url
-                    headers:
-                        'Authorization': 'Basic ' +
-                            btoa(@config.get('deviceName') + ':' +
-                                    @config.get('devicePassword'))
-                    username: @config.get 'deviceName'
-                    password: @config.get 'devicePassword'
-                    data: data
-                    contentType: false
-                    processData: false
-                    success: (success) -> callback null, success
-                    error: callback
+            username: @config.get 'deviceName'
+            password: @config.get 'devicePassword'
+            data: data
+            contentType: false
+            processData: false
+            success: (success) -> callback null, success
+            error: callback
 
 
-    createFile: (cordovaFile, localPath, cozyPath, callback) ->
+    createFile: (picture, localPath, cozyPath, callback) ->
         log.debug "createFile"
 
         fileClassFromMime = (type) ->
@@ -100,19 +78,29 @@ module.exports = class MediaUploader
                 when 'text', 'application' then "document"
                 else "file"
 
-        dbFile =
-            docType          : 'File'
-            localPath        : localPath
-            name             : cordovaFile.name
-            path             : cozyPath
-            class            : fileClassFromMime cordovaFile.type
-            mime             : cordovaFile.type
-            lastModification : new Date(cordovaFile.lastModified).toISOString()
-            creationDate     : new Date(cordovaFile.lastModified).toISOString()
-            size             : cordovaFile.size
-            tags             : ['from-' + @config.get 'deviceName']
+        create = (mimetype, size) =>
+            date = moment picture.creationDate, "YYYY-MM-DD HH:mm a z"
 
-        @_sendFileOrFolder dbFile, callback
+            dbFile =
+                docType          : 'File'
+                localPath        : localPath
+                name             : picture.filename
+                path             : cozyPath
+                class            : fileClassFromMime mimetype
+                mime             : mimetype
+                lastModification : date.toISOString()
+                creationDate     : date.toISOString()
+                size             : size
+                tags             : ['from-' + @config.get 'deviceName']
+
+            @_sendFileOrFolder dbFile, callback
+
+        if device.platform is "Android"
+            create picture.mimetype, picture.size
+        else
+            cordova.plugins.photoLibrary.getPhoto picture, (blob) =>
+                create blob.type, blob.size
+            , callback
 
 
     createFolder: (name, path, callback) ->
